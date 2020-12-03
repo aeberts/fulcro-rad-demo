@@ -17,6 +17,7 @@ datahub.log*
 node_modules
 out
 resources/public/js
+resources/public/workspaces
 target
 .cpcache
 .shadow-cljs

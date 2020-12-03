@@ -13,11 +13,11 @@
            com.taoensso/tufte                     {:mvn/version "2.1.0"}
 
            ;; Server
-           mount/mount                                  {:mvn/version "0.1.12"}
-           hiccup/hiccup                                 {:mvn/version "1.0.5"}
+           mount/mount                            {:mvn/version "0.1.12"}
+           hiccup/hiccup                          {:mvn/version "1.0.5"}
            ring/ring-defaults                     {:mvn/version "0.3.2"}
            ring/ring-core                         {:mvn/version "1.8.1"}
-           http-kit/http-kit                               {:mvn/version "2.5.0"}
+           http-kit/http-kit                      {:mvn/version "2.5.0"}
 
            ;; Unified logging for server
            com.taoensso/timbre                    {:mvn/version "5.0.0"}
@@ -46,4 +46,5 @@
                        :extra-deps  {thheller/shadow-cljs                {:mvn/version "2.11.8"}
                                      com.fulcrologic/semantic-ui-wrapper {:mvn/version "2.0.1"}
                                      binaryage/devtools                  {:mvn/version "1.0.0"}
+                                     com.github.awkay/workspaces         {:mvn/version "1.0.1"}
                                      org.clojure/tools.namespace         {:mvn/version "1.0.0"}}}}}

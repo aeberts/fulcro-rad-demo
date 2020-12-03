@@ -42,5 +42,16 @@
                        :compiler-options {:static-fns      false ; required for mocking to work
                                           :external-config {:guardrails {:throw? true :emit-spec? true}}}
                        :output-to        "target/ci.js"
-                       :ns-regexp        "-spec$"}}}
+                       :ns-regexp        "-spec$"}
+
+            :workspaces {:target     :browser
+                         :output-dir "resources/public/workspaces/js"
+                         :asset-path "/workspaces/js"
+                         :devtools   {:preloads           [devtools.preload com.fulcrologic.fulcro.inspect.websocket-preload]
+                                      :after-load         nubank.workspaces.core/after-load
+                                      :loader-mode        :eval
+                                      :http-root          "resources/public"
+                                      :http-port          8023
+                                      :http-resource-root "."}
+                         :modules {:main {:entries [com.example.workspaces.main]}}}}}
 
