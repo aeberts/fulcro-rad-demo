@@ -4,7 +4,8 @@
  :builds   {:main     {:target     :browser
                        :output-dir "resources/public/js/main"
                        :asset-path "/js/main"
-                       :dev        {:compiler-options {:external-config {:guardrails {:emit-spec? true :throw? false}}}}
+                       :dev        {:closure-defines {com.fulcrologic.fulcro.inspect.inspect_ws/SERVER_PORT 8237}
+                                    :compiler-options {:external-config {:guardrails {:emit-spec? true :throw? false}}}}
                        :modules    {:main {:init-fn com.example.client/init}}
                        :js-options {:resolve
                                     {
@@ -21,7 +22,7 @@
                                      "js-joda-timezone"
                                      {:target  :npm
                                       :require "js-joda-timezone/dist/js-joda-timezone-10-year-range.min.js"}}}
-                       :devtools   {:preloads   [com.fulcrologic.fulcro.inspect.preload]
+                       :devtools   {:preloads   [com.fulcrologic.fulcro.inspect.websocket-preload]
                                     :after-load com.example.client/refresh}}
 
             :test     {:target           :browser-test
