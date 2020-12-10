@@ -1,6 +1,6 @@
 (ns com.example.ui
   (:require
-   #?@(:cljs [
+   #?@(:cljs [[com.fulcrologic.fulcro.mutations :as m]
               [com.fulcrologic.semantic-ui.factories :as sf]
               [com.fulcrologic.semantic-ui.icons :as sfi]
               [semantic-ui-react :as suir]
@@ -33,7 +33,7 @@
    [com.fulcrologic.rad.routing :as rroute]
    [taoensso.timbre :as log]
    #?(:cljs ["semantic-ui-react" :as js-sui])
-   ))
+   [com.fulcrologic.fulcro.mutations :as m]))
 
 ;;(defsc LandingPage [this props]
 ;;  {:query         ['*]
@@ -42,28 +42,16 @@
 ;;   :route-segment ["landing-page"]}
 ;;  (dom/div "Welcome to the ToDo App. Please log in."))
 
-;;(defsc Root [this {:keys []}]
-;;  {:initial-state {}
-;;   :query         ['*]
-;;   }
-;;  (sf/ui-sidebar-pushable
-;;       (div :.ui.four.wide.column "Left Menu Bar"
-;;            (div
-;;                 (sf/ui-image {:src "/images/logo.png"})
-;;                 (sf/ui-button {:className "ui blue button" :content "Today" :icon "calendar"})
-;;                 (sf/ui-button {:content "Uncategorized" :icon "calendar"})
-;;                 (sf/ui-accordion {:fluid true}
-;;                          (sf/ui-accordion-title {:active false :onClick #(js/console.log "I have been clicked")
-;;                                               :index 0} "Title")
-;;                               (sf/ui-accordion-content {:active true} (dom/p "Projects X")))
-;;                 )
-;;            )
-;;       (div :.ui.twelve.wide.column "Main Content")))
+(m/defmutation toggle-sidebar-visibility
+  "Mutation: Toggle sidebar visibility"
+  [{visibile? [:component/id :sidebar :sidebar/visible?]}]
+  (action [{:keys [state]}]
+          (swap! state update-in [:component/id :sidebar :sidebar/visible?] not)))
 
-
-(defsc ExampleSidebar [this {:keys []}]
-  {:initial-state {}
-   :query         ['*]}
+(defsc Sidebar [this {:sidebar/keys [visible?]}]
+  {:initial-state {:sidebar/visible? true}
+   :query         [:sidebar/visible?]
+   :ident         (fn [] [:component/id :sidebar])}
   (sf/ui-container
    {}
    (sf/ui-grid
@@ -71,9 +59,9 @@
     (sf/ui-grid-column
      {}
      (sf/ui-checkbox
-      {:checked true
+      {:checked visible?
        :label   "Visible"
-       :onClick #(js/console.log "Visible checkbox clicked")}))
+       :onClick #(comp/transact! this [(toggle-sidebar-visibility {})])}))
     (sf/ui-grid-column
      {}
      (sf/ui-sidebar-pushable
@@ -84,7 +72,7 @@
         :icon      "labeled"
         :inverted  true
         :vertical  true
-        :visible   true
+        :visible   visible?
         :width     "thin"}
        (sf/ui-menu-item
         {:as "a"}
@@ -108,20 +96,17 @@
         (sf/ui-image
          {:src "https://react.semantic-ui.com/images/wireframe/paragraph.png"}))))))))
 
-(def ui-siderbar-example (comp/factory ExampleSidebar))
+(def ui-sidebar (comp/factory Sidebar))
 
-(defsc Root [this {:keys []}]
-  {:initial-state {}
-   :query         ['*]}
+(defsc Root [this {:root/keys [sidebar]}]
+  {:initial-state {:root/sidebar {}}
+   :query         [{:root/sidebar (comp/get-query Sidebar)}]}
   (div
-   (ui-siderbar-example)))
+   (ui-sidebar sidebar)))
 
 (def ui-root (comp/factory Root))
 
 (comment
- (react/createElement "Menu" (clj->js {}) children)
-
- (sf/ui-menu)
 
  )
 ;;
