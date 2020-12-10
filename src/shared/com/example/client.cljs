@@ -26,16 +26,17 @@
   "Mutation. Called after auth startup. Looks at the session. If the user is not logged in, it triggers authentication"
   [_]
   (action [{:keys [app]}]
-    (let [logged-in (auth/verified-authorities app)]
-      (if (empty? logged-in)
-        (routing/route-to! app ui/LandingPage {})
-        (hist5/restore-route! app ui/LandingPage {})))))
+          (let [logged-in (auth/verified-authorities app)]
+            #_(if (empty? logged-in)
+              (routing/route-to! app ui/LandingPage {}) ;;uncomment to enable routing
+              (hist5/restore-route! app ui/LandingPage {}) ;;uncomment to enable routing
+              ))))
 
 (defonce app (rad-app/fulcro-rad-app
                {:client-will-mount (fn [app]
                                      (log/merge-config! {:output-fn prefix-output-fn
                                                          :appenders {:console (console-appender)}})
-                                     (dr/change-route! app ["landing-page"])
+                                     ;;(dr/change-route! app ["landing-page"]) ;;this sets the initial page for dynamic router!
                                      ;; a default tz until they log in
                                      (datetime/set-timezone! "America/Los_Angeles")
                                      (history/install-route-history! app (html5-history))

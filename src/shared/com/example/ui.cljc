@@ -1,13 +1,18 @@
 (ns com.example.ui
   (:require
-   #?@(:cljs [[com.fulcrologic.semantic-ui.modules.dropdown.ui-dropdown :refer [ui-dropdown]]
-              [com.fulcrologic.semantic-ui.modules.dropdown.ui-dropdown-menu :refer [ui-dropdown-menu]]
-              [com.fulcrologic.semantic-ui.modules.dropdown.ui-dropdown-item :refer [ui-dropdown-item]]
+   #?@(:cljs [
+              [com.fulcrologic.semantic-ui.factories :as sf]
+              [com.fulcrologic.semantic-ui.icons :as sfi]
+              [semantic-ui-react :as suir]
               [com.fulcrologic.semantic-ui.collections.menu.ui-menu :refer [ui-menu]]
-              [com.fulcrologic.semantic-ui.collections.menu.ui-menu-item :refer [ui-menu-item]]
-              [com.fulcrologic.semantic-ui.elements.image.ui-image :refer [ui-image]]
-              [com.fulcrologic.semantic-ui.elements.button.ui-button :refer [ui-button]]
-              [com.fulcrologic.semantic-ui.icons]
+              ;;[com.fulcrologic.semantic-ui.modules.dropdown.ui-dropdown :refer [ui-dropdown]]
+              ;;[com.fulcrologic.semantic-ui.modules.dropdown.ui-dropdown-menu :refer [ui-dropdown-menu]]
+              ;;[com.fulcrologic.semantic-ui.modules.dropdown.ui-dropdown-item :refer [ui-dropdown-item]]
+              ;;[com.fulcrologic.semantic-ui.collections.menu.ui-menu :refer [ui-menu]]
+              ;;[com.fulcrologic.semantic-ui.collections.menu.ui-menu-item :refer [ui-menu-item]]
+              ;;[com.fulcrologic.semantic-ui.elements.image.ui-image :refer [ui-image]]
+              ;;[com.fulcrologic.semantic-ui.elements.button.ui-button :refer [ui-button]]
+              ;;[com.fulcrologic.semantic-ui.modules.accordion.ui-accordion :refer [ui-accordion]]
               ])
    #?(:clj  [com.fulcrologic.fulcro.dom-server :as dom :refer [div label input]]
       :cljs [com.fulcrologic.fulcro.dom :as dom :refer [div label input]])
@@ -26,35 +31,99 @@
    [com.fulcrologic.rad.form :as form]
    [com.fulcrologic.rad.ids :refer [new-uuid]]
    [com.fulcrologic.rad.routing :as rroute]
-   [taoensso.timbre :as log]))
+   [taoensso.timbre :as log]
+   #?(:cljs ["semantic-ui-react" :as js-sui])
+   ))
 
-(defsc LandingPage [this props]
-  {:query         ['*]
-   :ident         (fn [] [:component/id ::LandingPage])
-   :initial-state {}
-   :route-segment ["landing-page"]}
-  (dom/div "Welcome to the ToDo App. Please log in."))
+;;(defsc LandingPage [this props]
+;;  {:query         ['*]
+;;   :ident         (fn [] [:component/id ::LandingPage])
+;;   :initial-state {}
+;;   :route-segment ["landing-page"]}
+;;  (dom/div "Welcome to the ToDo App. Please log in."))
+
+;;(defsc Root [this {:keys []}]
+;;  {:initial-state {}
+;;   :query         ['*]
+;;   }
+;;  (sf/ui-sidebar-pushable
+;;       (div :.ui.four.wide.column "Left Menu Bar"
+;;            (div
+;;                 (sf/ui-image {:src "/images/logo.png"})
+;;                 (sf/ui-button {:className "ui blue button" :content "Today" :icon "calendar"})
+;;                 (sf/ui-button {:content "Uncategorized" :icon "calendar"})
+;;                 (sf/ui-accordion {:fluid true}
+;;                          (sf/ui-accordion-title {:active false :onClick #(js/console.log "I have been clicked")
+;;                                               :index 0} "Title")
+;;                               (sf/ui-accordion-content {:active true} (dom/p "Projects X")))
+;;                 )
+;;            )
+;;       (div :.ui.twelve.wide.column "Main Content")))
+
+
+(defsc ExampleSidebar [this {:keys []}]
+  {:initial-state {}
+   :query         ['*]}
+  (sf/ui-container
+   {}
+   (sf/ui-grid
+    {:columns 1}
+    (sf/ui-grid-column
+     {}
+     (sf/ui-checkbox
+      {:checked true
+       :label   "Visible"
+       :onClick #(js/console.log "Visible checkbox clicked")}))
+    (sf/ui-grid-column
+     {}
+     (sf/ui-sidebar-pushable
+      {:as js-sui/Segment}
+      (sf/ui-sidebar
+       {:as        js-sui/Menu
+        :animation "overlay"
+        :icon      "labeled"
+        :inverted  true
+        :vertical  true
+        :visible   true
+        :width     "thin"}
+       (sf/ui-menu-item
+        {:as "a"}
+        (sf/ui-icon
+         {:name sfi/home-icon}) "Home")
+       (sf/ui-menu-item
+        {:as "a"}
+        (sf/ui-icon
+         {:name sfi/gamepad-icon}) "Gamepad")
+       (sf/ui-menu-item
+        {:as "a"}
+        (sf/ui-icon
+         {:name sfi/camera-icon}) "Channels"))
+      (sf/ui-sidebar-pusher
+       {}
+       (sf/ui-segment
+        {:basic true}
+        (sf/ui-header
+         {:as "h3"}
+         "Application Content")
+        (sf/ui-image
+         {:src "https://react.semantic-ui.com/images/wireframe/paragraph.png"}))))))))
+
+(def ui-siderbar-example (comp/factory ExampleSidebar))
 
 (defsc Root [this {:keys []}]
   {:initial-state {}
-   :query         ['*]
-   }
-  (div :.ui.grid
-       (div :.ui.four.wide.column "Menu Bar"
-            (div
-                 (ui-image {:src "/images/logo.png"})
-                 (ui-button {:className "ui blue button" :content "Today" :icon "calendar"})
-                 (ui-button {:content "Uncategorized" :icon "calendar"})
-                 (ui-menu {:className "vertical"}
-                          (ui-menu-item {:name "Projects"})
-                          (ui-menu-item {:name "Private"})
-                          (ui-menu-item {:name "Work"}))
-                 )
-            )
-       (div :.ui.twelve.wide.column "Main Content")))
+   :query         ['*]}
+  (div
+   (ui-siderbar-example)))
 
 (def ui-root (comp/factory Root))
 
+(comment
+ (react/createElement "Menu" (clj->js {}) children)
+
+ (sf/ui-menu)
+
+ )
 ;;
 ;;;; This will just be a normal router...but there can be many of them.
 ;;(defrouter MainRouter [this {:keys [current-state route-factory route-props]}]
