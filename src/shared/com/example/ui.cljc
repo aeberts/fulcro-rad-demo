@@ -33,7 +33,8 @@
    [com.fulcrologic.rad.routing :as rroute]
    [taoensso.timbre :as log]
    #?(:cljs ["semantic-ui-react" :as js-sui])
-   [com.fulcrologic.fulcro.mutations :as m]))
+   [com.fulcrologic.fulcro.mutations :as m]
+   ))
 
 ;;(defsc LandingPage [this props]
 ;;  {:query         ['*]
@@ -48,10 +49,22 @@
   (action [{:keys [state]}]
           (swap! state update-in [:component/id :sidebar :sidebar/visible?] not)))
 
-(defsc Sidebar [this {:sidebar/keys [visible?]}]
-  {:initial-state {:sidebar/visible? true}
-   :query         [:sidebar/visible?]
-   :ident         (fn [] [:component/id :sidebar])}
+(defsc MenuItem [this {:menu-item/keys [id label icon] :as props}]
+  {:query         [:menu-item/id :menu-item/label :menu-item/icon]
+   :initial-state (fn [_] [{:menu-item/id 1 :menu-item/label "Home" :menu-item/icon sfi/home-icon}
+                           {:menu-item/id 2 :menu-item/label "Gamepad" :menu-item/icon sfi/gamepad-icon}
+                           {:menu-item/id 3 :menu-item/label "Channels" :menu-item/icon sfi/camera-icon}])})
+
+(defn ui-menu-item [{:menu-item/keys [id label icon]}]
+  (sf/ui-menu-item {:as "a"}
+   (sf/ui-icon {:name icon}) label))
+
+(defsc Sidebar [this {:sidebar/keys [visible? menu-items]}]
+  {:query         [:sidebar/visible?
+                   {:sidebar/menu-items (comp/get-query MenuItem)}]
+   :ident         (fn [] [:component/id :sidebar])
+   :initial-state {:sidebar/visible?   true
+                   :sidebar/menu-items {}}}
   (sf/ui-container
    {}
    (sf/ui-grid
@@ -59,33 +72,16 @@
     (sf/ui-grid-column
      {}
      (sf/ui-checkbox
-      {:checked visible?
-       :label   "Visible"
+      {:toggle  true :checked visible? :label "Sidebar"
        :onClick #(comp/transact! this [(toggle-sidebar-visibility {})])}))
     (sf/ui-grid-column
      {}
      (sf/ui-sidebar-pushable
       {:as js-sui/Segment}
       (sf/ui-sidebar
-       {:as        js-sui/Menu
-        :animation "overlay"
-        :icon      "labeled"
-        :inverted  true
-        :vertical  true
-        :visible   visible?
-        :width     "thin"}
-       (sf/ui-menu-item
-        {:as "a"}
-        (sf/ui-icon
-         {:name sfi/home-icon}) "Home")
-       (sf/ui-menu-item
-        {:as "a"}
-        (sf/ui-icon
-         {:name sfi/gamepad-icon}) "Gamepad")
-       (sf/ui-menu-item
-        {:as "a"}
-        (sf/ui-icon
-         {:name sfi/camera-icon}) "Channels"))
+       {:as js-sui/Menu :animation "overlay" :icon "labeled" :inverted true :vertical true :visible visible? :width "thin"}
+       (map ui-menu-item
+            menu-items))
       (sf/ui-sidebar-pusher
        {}
        (sf/ui-segment

@@ -17,7 +17,8 @@
     [com.fulcrologic.rad.routing.html5-history :as hist5 :refer [html5-history]]
     [com.fulcrologic.rad.routing.history :as history]
     [com.fulcrologic.rad.routing :as routing]
-    [com.fulcrologic.fulcro.routing.dynamic-routing :as dr]))
+    [com.fulcrologic.fulcro.routing.dynamic-routing :as dr]
+    [com.fulcrologic.fulcro.rendering.keyframe-render2 :as kfr2]))
 
 (defonce stats-accumulator
   (tufte/add-accumulating-handler! {:ns-pattern "*"}))
@@ -42,7 +43,8 @@
                                      (history/install-route-history! app (html5-history))
                                      (rad-app/install-ui-controls! app sui/all-controls)
                                      (report/install-formatter! app :boolean :affirmation (fn [_ value] (if value "yes" "no")))
-                                     (auth/start! app [LoginForm] {:after-session-check `fix-route}))}))
+                                     (auth/start! app [LoginForm] {:after-session-check `fix-route}))
+                :optimized-render!   kfr2/render!}))
 
 (defn refresh []
   ;; hot code reload of installed controls
