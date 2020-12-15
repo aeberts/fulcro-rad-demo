@@ -111,18 +111,17 @@
    (dom/div
     :.ui.one.column.grid
     (dom/div
-     :.ui.one.wide.column
+     :.ui.column
      (dom/div
       :.ui.toggle.checkbox
       (dom/input
-       {:type    "checkbox" :checked visible? :name "checkbox-sidebar-vanilla"
-        :onClick #(comp/transact! this [(toggle-sidebar-vanilla-visibility {})])})
+       {:type "checkbox"
+        :onClick #(comp/transact! this [(toggle-sidebar-vanilla-visibility {})])
+        :checked (if visible? "checked" "")})
       (dom/label "Sidebar")))
-    (dom/div
-     :.ui.one.column.grid
+    (dom/div :.column
      (dom/div
-      :.ui.pushable
-      {:as js-sui/Segment}
+      :.ui.segment.pushable
       (dom/div :.ui.sidebar.menu.overlay.left.vertical.inverted.thin.labeled.icon
                {:classes [(when visible? "visible")]}
                (mapv ui-menu-item
@@ -134,7 +133,7 @@
                         (dom/img :.ui.image
                                  {:src "https://react.semantic-ui.com/images/wireframe/paragraph.png"}))))))))
 
-(def ui-sidebar (comp/factory SidebarVanilla))
+(def ui-sidebar-vanilla (comp/factory SidebarVanilla))
 
 (defsc Root [this {:root/keys [sidebar-react sidebar-vanilla]}]
   {:query         [{:root/sidebar-react (comp/get-query SidebarReact)}
@@ -145,7 +144,7 @@
        (dom/h3 "React Semantic-UI")
        (ui-sidebar-react sidebar-react)
        (dom/h3 "Vanilla Semantic-UI")
-       (ui-sidebar sidebar-vanilla)))
+       (ui-sidebar-vanilla sidebar-vanilla)))
 
 (def ui-root (comp/factory Root))
 
