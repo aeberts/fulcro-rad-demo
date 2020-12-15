@@ -43,11 +43,17 @@
 ;;   :route-segment ["landing-page"]}
 ;;  (dom/div "Welcome to the ToDo App. Please log in."))
 
-(m/defmutation toggle-sidebar-visibility
+(m/defmutation toggle-sidebar-react-visibility
   "Mutation: Toggle sidebar visibility"
-  [{visibile? [:component/id :sidebar :sidebar/visible?]}]
+  [{visibile? [:component/id :sidebar-react :sidebar-react/visible?]}]
   (action [{:keys [state]}]
-          (swap! state update-in [:component/id :sidebar :sidebar/visible?] not)))
+          (swap! state update-in [:component/id :sidebar-react :sidebar-react/visible?] not)))
+
+(m/defmutation toggle-sidebar-vanilla-visibility
+  "Mutation: Toggle sidebar visibility"
+  [{visibile? [:component/id :sidebar-vanilla :sidebar-vanilla/visible?]}]
+  (action [{:keys [state]}]
+          (swap! state update-in [:component/id :sidebar-vanilla :sidebar-vanilla/visible?] not)))
 
 (defsc MenuItem [this {:menu-item/keys [id label icon] :as props}]
   {:query         [:menu-item/id :menu-item/label :menu-item/icon]
@@ -57,14 +63,14 @@
 
 (defn ui-menu-item [{:menu-item/keys [id label icon]}]
   (sf/ui-menu-item {:as "a"}
-   (sf/ui-icon {:name icon}) label))
+                   (sf/ui-icon {:name icon}) label))
 
-(defsc Sidebar [this {:sidebar/keys [visible? menu-items]}]
-  {:query         [:sidebar/visible?
-                   {:sidebar/menu-items (comp/get-query MenuItem)}]
-   :ident         (fn [] [:component/id :sidebar])
-   :initial-state {:sidebar/visible?   true
-                   :sidebar/menu-items {}}}
+(defsc SidebarReact [this {:sidebar-react/keys [visible? menu-items]}]
+  {:query         [:sidebar-react/visible?
+                   {:sidebar-react/menu-items (comp/get-query MenuItem)}]
+   :ident         (fn [] [:component/id :sidebar-react])
+   :initial-state {:sidebar-react/visible?   true
+                   :sidebar-react/menu-items {}}}
   (sf/ui-container
    {}
    (sf/ui-grid
@@ -73,15 +79,15 @@
      {}
      (sf/ui-checkbox
       {:toggle  true :checked visible? :label "Sidebar"
-       :onClick #(comp/transact! this [(toggle-sidebar-visibility {})])}))
+       :onClick #(comp/transact! this [(toggle-sidebar-react-visibility {})])}))
     (sf/ui-grid-column
      {}
      (sf/ui-sidebar-pushable
       {:as js-sui/Segment}
       (sf/ui-sidebar
        {:as js-sui/Menu :animation "overlay" :icon "labeled" :inverted true :vertical true :visible visible? :width "thin"}
-       (map ui-menu-item
-            menu-items))
+       (mapv ui-menu-item
+             menu-items))
       (sf/ui-sidebar-pusher
        {}
        (sf/ui-segment
@@ -92,17 +98,59 @@
         (sf/ui-image
          {:src "https://react.semantic-ui.com/images/wireframe/paragraph.png"}))))))))
 
-(def ui-sidebar (comp/factory Sidebar))
+(def ui-sidebar-react (comp/factory SidebarReact))
 
-(defsc Root [this {:root/keys [sidebar]}]
-  {:initial-state {:root/sidebar {}}
-   :query         [{:root/sidebar (comp/get-query Sidebar)}]}
-  (div
-   (ui-sidebar sidebar)))
+(defsc SidebarVanilla [this {:sidebar-vanilla/keys [visible? menu-items]}]
+  {:query         [:sidebar-vanilla/visible?
+                   {:sidebar-vanilla/menu-items (comp/get-query MenuItem)}]
+   :ident         (fn [] [:component/id :sidebar-vanilla])
+   :initial-state {:sidebar-vanilla/visible?   true
+                   :sidebar-vanilla/menu-items {}}}
+  (dom/div
+   :.ui.container
+   (dom/div
+    :.ui.one.column.grid
+    (dom/div
+     :.ui.one.wide.column
+     (dom/div
+      :.ui.toggle.checkbox
+      (dom/input
+       {:type    "checkbox" :checked visible? :name "checkbox-sidebar-vanilla"
+        :onClick #(comp/transact! this [(toggle-sidebar-vanilla-visibility {})])})
+      (dom/label "Sidebar")))
+    (dom/div
+     :.ui.one.column.grid
+     (dom/div
+      :.ui.pushable
+      {:as js-sui/Segment}
+      (dom/div :.ui.sidebar.menu.overlay.left.vertical.inverted.thin.labeled.icon
+               {:classes [(when visible? "visible")]}
+               (mapv ui-menu-item
+                     menu-items))
+      (dom/div :.ui.pusher
+               (dom/div :.ui.segment
+                        (dom/h3 :.ui.header
+                                "Application Content")
+                        (dom/img :.ui.image
+                                 {:src "https://react.semantic-ui.com/images/wireframe/paragraph.png"}))))))))
+
+(def ui-sidebar (comp/factory SidebarVanilla))
+
+(defsc Root [this {:root/keys [sidebar-react sidebar-vanilla]}]
+  {:query         [{:root/sidebar-react (comp/get-query SidebarReact)}
+                   {:root/sidebar-vanilla (comp/get-query SidebarVanilla)}]
+   :initial-state {:root/sidebar-vanilla {}
+                   :root/sidebar-react   {}}}
+  (div :.ui.container
+       (dom/h3 "React Semantic-UI")
+       (ui-sidebar-react sidebar-react)
+       (dom/h3 "Vanilla Semantic-UI")
+       (ui-sidebar sidebar-vanilla)))
 
 (def ui-root (comp/factory Root))
 
 (comment
+ (comp/fragment)
 
  )
 ;;
