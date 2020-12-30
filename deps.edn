@@ -2,6 +2,7 @@
 
  :deps    {com.fulcrologic/fulcro                 {:mvn/version "3.4.10"}
            com.fulcrologic/fulcro-rad             {:mvn/version "1.0.8"}
+           com.fulcrologic/fulcro-rad-datomic     {:mvn/version "1.0.4"}
            com.fulcrologic/fulcro-rad-semantic-ui {:mvn/version "1.0.4"}
            com.fulcrologic/fulcro-i18n            {:mvn/version "0.0.5-alpha"}
            com.wsscode/pathom                     {:mvn/version "2.3.0-alpha21"}

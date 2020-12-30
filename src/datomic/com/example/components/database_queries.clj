@@ -1,9 +1,9 @@
 (ns com.example.components.database-queries
   (:require
-    [com.fulcrologic.rad.database-adapters.datomic :as datomic]
-    [datomic.api :as d]
-    [taoensso.timbre :as log]
-    [taoensso.encore :as enc]))
+   [com.fulcrologic.rad.database-adapters.datomic :as datomic]
+   [datomic.api :as d]
+   [taoensso.timbre :as log]
+   [taoensso.encore :as enc]))
 
 (defn get-all-accounts
   [env query-params]
@@ -92,9 +92,40 @@
   "Get the account name, time zone, and password info via a username (email)."
   [{::datomic/keys [databases] :as env} username]
   (enc/if-let [db @(:production databases)]
-    (d/pull db [:account/name
-                {:time-zone/zone-id [:db/ident]}
-                :password/hashed-value
-                :password/salt
-                :password/iterations]
-      [:account/email username])))
+              (d/pull db [:account/name
+                          {:time-zone/zone-id [:db/ident]}
+                          :password/hashed-value
+                          :password/salt
+                          :password/iterations]
+                      [:account/email username])))
+
+(defn get-all-todos
+  "Get all todos"
+  [env query-params]
+  (enc/if-let [db (some-> (get-in env [::datomic/databases :production]) deref)]
+              (let [ids (d/q '[:find [?id ...]
+                               :where
+                               [?e :todo/id ?id]] db)]
+                (mapv (fn [id] {:todo/id id}) ids))
+              (log/error "No database atom for production schema!")))
+
+(defn get-all-projects
+  "Get all todos"
+  [env query-params]
+  (enc/if-let [db (some-> (get-in env [::datomic/databases :production]) deref)]
+              (let [ids (d/q '[:find [?id ...]
+                               :where
+                               [?e :project/id ?id]] db)]
+                (mapv (fn [id] {:project/id id}) ids))
+              (log/error "No database atom for production schema!")))
+
+;;(defn get-todo-project-todos
+;;  "Get todo labels associated with a project"
+;;  [env query-params]
+;;  (enc/if-let [db (some-> (get-in env [::datomic/databases :production]) deref)]
+;;              (let [labels (d/q '[:find [?project ?project-todos ...]
+;;                                  :where
+;;                                  [?e :project/id ?project]] db)]
+;;                (mapv (fn [id] {:project/id id}) ))
+;;              (log/error "No database atom for production schema!")))
+

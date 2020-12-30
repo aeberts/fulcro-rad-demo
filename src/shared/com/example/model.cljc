@@ -9,6 +9,8 @@
     [com.example.model.category :as category]
     [com.example.model.file :as m.file]
     [com.example.model.sales :as sales]
+    [com.example.model.todo :as todo]
+    [com.example.model.project :as project]
     [com.fulcrologic.rad.attributes :as attr]))
 
 (def all-attributes (vec (concat
@@ -20,6 +22,8 @@
                            line-item/attributes
                            m.file/attributes
                            sales/attributes
+                           todo/attributes
+                           project/attributes
                            timezone/attributes)))
 
 (def all-attribute-validator (attr/make-attribute-validator all-attributes))

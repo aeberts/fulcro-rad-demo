@@ -33,16 +33,17 @@
                        (swap! state update-in [:component/id :sidebar-vanilla :sidebar-vanilla/visible?] not)))
 
 (defsc MenuItem [this {:menu-item/keys [id label icon] :as props}]
-       {:query         [:menu-item/id :menu-item/label :menu-item/icon]
-        :initial-state (fn [_] [{:menu-item/id 1 :menu-item/label "Home" :menu-item/icon sfi/home-icon}
-                                {:menu-item/id 2 :menu-item/label "Gamepad" :menu-item/icon sfi/gamepad-icon}
-                                {:menu-item/id 3 :menu-item/label "Channels" :menu-item/icon sfi/camera-icon}])})
+  {:query         [:menu-item/id :menu-item/label :menu-item/icon]
+   :initial-state #?(:clj {}
+                     :cljs (fn [_] [{:menu-item/id 1 :menu-item/label "Home" :menu-item/icon sfi/home-icon}
+                                    {:menu-item/id 2 :menu-item/label "Gamepad" :menu-item/icon sfi/gamepad-icon}
+                                    {:menu-item/id 3 :menu-item/label "Channels" :menu-item/icon sfi/camera-icon}]))})
 
-(defn ui-menu-item [{:menu-item/keys [id label icon]}]
+#_(defn ui-menu-item [{:menu-item/keys [id label icon]}]
   (sf/ui-menu-item {:as "a"}
                    (sf/ui-icon {:name icon}) label))
 
-(defsc SidebarReact [this {:sidebar-react/keys [visible? menu-items]}]
+#_(defsc SidebarReact [this {:sidebar-react/keys [visible? menu-items]}]
        {:query         [:sidebar-react/visible?
                         {:sidebar-react/menu-items (comp/get-query MenuItem)}]
         :ident         (fn [] [:component/id :sidebar-react])
@@ -75,9 +76,9 @@
              (sf/ui-image
               {:src "https://react.semantic-ui.com/images/wireframe/paragraph.png"}))))))))
 
-(def ui-sidebar-react (comp/factory SidebarReact))
+#_(def ui-sidebar-react (comp/factory SidebarReact))
 
-(defsc SidebarVanilla [this {:sidebar-vanilla/keys [visible? menu-items]}]
+#_(defsc SidebarVanilla [this {:sidebar-vanilla/keys [visible? menu-items]}]
        {:query         [:sidebar-vanilla/visible?
                         {:sidebar-vanilla/menu-items (comp/get-query MenuItem)}]
         :ident         (fn [] [:component/id :sidebar-vanilla])
@@ -110,4 +111,4 @@
                                      (dom/img :.ui.image
                                               {:src "https://react.semantic-ui.com/images/wireframe/paragraph.png"}))))))))
 
-(def ui-sidebar-vanilla (comp/factory SidebarVanilla))
+#_(def ui-sidebar-vanilla (comp/factory SidebarVanilla))
