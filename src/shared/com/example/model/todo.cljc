@@ -19,22 +19,14 @@
 
 (defattr id :todo/id :uuid
   {ao/identity? true
-   ;; NOTE: These are spelled out so we don't have to have either on classpath, which allows
-   ;; independent experimentation. In a normal project you'd use ns aliasing.
-   ao/schema    :production
-   ;;:com.fulcrologic.rad.database-adapters.sql/table "account"
-   })
+   ao/schema    :production})
 
 (defattr label :todo/label :string
   {fo/field-label "Label"
    ;::report/field-formatter (fn [v] (str "ATTR" v))
    ao/identities  #{:todo/id}
-   ;ao/valid?      (fn [v] (str/starts-with? v "Bruce"))
-   ;::attr/validation-message   (fn [v] "Your name's not Bruce then??? How 'bout we just call you Bruce?")
    ao/schema      :production
    ao/required?   true})
-
-;; status - one of :not-started :in-progress :completed :archived
 
 (def todo-status
   {:todo.status/not-started "Not Started"
@@ -54,10 +46,11 @@
    ao/target      :todo/id
    ao/pc-resolve (fn [{:keys [query-params] :as env } _]
                    #?(:clj
-                      {:todo/all-todos (queries/get-all-todos env query-params)}))
-   })
+                      {:todo/all-todos (queries/get-all-todos env query-params)}))})
 
 (def attributes [id label status all-todos])
+
+(def resolvers [])
 
 (comment
 

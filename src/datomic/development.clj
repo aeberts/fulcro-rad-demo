@@ -12,6 +12,7 @@
    [com.example.model.account :as account]
    [com.example.model.address :as address]
    [com.example.model.todo :as todo]
+   [com.example.model.project :as project]
    [com.fulcrologic.rad.ids :refer [new-uuid]]
    [com.fulcrologic.rad.database-adapters.datomic :as datomic]
    [com.fulcrologic.rad.resolvers :as res]
@@ -75,10 +76,10 @@
                                (seed/new-todo (new-uuid 300) "Buy Milk" :todo.status/not-started)
                                (seed/new-todo (new-uuid 301) "Learn Fulcro" :todo.status/not-started)
                                (seed/new-todo (new-uuid 302) "Master Clojure" :todo.status/not-started)
-                               #_(seed/new-project (new-uuid 400) "Clojure"
+                               (seed/new-project (new-uuid 400) "Clojure"
                                                  [(seed/new-todo (new-uuid 303) "Learn Pathom" :todo.status/in-progress)
                                                   (seed/new-todo (new-uuid 304) "Write Fulcro App" :todo.status/in-progress)])
-                               #_(seed/new-project (new-uuid 401) "Home"
+                               (seed/new-project (new-uuid 401) "Home"
                                                  [(seed/new-todo (new-uuid 305) "Take out garbage" :todo.status/not-started)])
                                ]))))
 
@@ -103,7 +104,11 @@
 (def reset #'restart)
 
 (defn get-fake-env
-  "Returns a 'fake' pathom env with the datomic datasource at the expected location"
+  "Returns a 'fake' env with the datomic datasource at the expected location to
+  manually run queries against the parser.
+
+  E.g: (parser/parser (get-fake-env) [:your/query :goes/here])
+  "
   []
   {::datomic/databases {:production (:main datomic-connections)}})
 
@@ -112,10 +117,12 @@
   [query]
   (parser/parser (get-fake-env) query))
 
-;;(defn mresolve
-;;  "Manually execute a resolver with 'fake' pathom environment"
-;;  [r]
-;;  (pc/resolve MyThing))
+(defn mresolve
+  "Manually execute a resolver with 'fake' pathom environment"
+  [resolver]
+  ((:com.wsscode.pathom.connect/resolve resolver)
+   {::datomic/databases {:production (atom (d/db (:main datomic-connections)))}}
+   {}))
 
 (defn transact-item
   "Transact an item to the DB for development and testing"
@@ -126,6 +133,31 @@
 
 (comment
 
+ ;(mresolve project/app-env)
+
+ (def datomic-env
+   {::datomic/databases
+    {:production (atom (d/db (:main datomic-connections)))}})
+
+ (def denv
+   {::datomic/databases
+    {:production (:main datomic-connections)}})
+
+ ((:com.wsscode.pathom.connect/resolve project/all-projects)
+  development/datomic-env {})
+
+ ((:com.wsscode.pathom.connect/resolve project/todo-labels)
+  development/datomic-env {})
+
+ ((:com.wsscode.pathom.connect/resolve project/project-by-id)
+  development/datomic-env {})
+
+ (-> (mparse [{[:project/id #uuid"ffffffff-ffff-ffff-ffff-000000000400"] [{:project/project-todos [:todo/label]}]}])
+     (get [:project/id #uuid"ffffffff-ffff-ffff-ffff-000000000400"]))
+
+ ;;((:com.wsscode.pathom.connect/resolve project/app-env)
+ ;; development/datomic-env {})
+
  (go)
  (restart)
 
@@ -134,7 +166,16 @@
 
  (parser/parser (get-fake-env) [:project/all-projects])
 
- (mparse [:project/all-projects])
+ ;; example from pathom docs https://blog.wsscode.com/pathom/v2/pathom/2.2.0/connect/resolvers.html
+ ;; [{[:person/id 42] [:person/first-name]}]
+
+ (def tid1 [{[:todo/id #uuid"ffffffff-ffff-ffff-ffff-000000000303"] [:todo/label]}] )
+ (def pid1 [{[:project/id #uuid"c1886414-00de-4a35-bf2d-b4ff21286886"] [:project/label]}])
+ (def pid2 [{[:project/id #uuid"7086f20c-3e61-46bd-ad99-fea82f67fe8b"] [:project/label {:project/project-todos [:todo/id :todo/label :todo/status]}]}])
+
+ (mparse tid1)
+ (mparse [{:project/all-projects [:project/label {:project/project-todos [:todo/id :todo/label]}]}])
+ (mparse [{[:project/id #uuid"c1886414-00de-4a35-bf2d-b4ff21286886"] [{:project/project-todos [:todo/id :todo/label :todo/status]}]}])
 
  (def np1 (seed/new-project (new-uuid 401) "New"
                      [(seed/new-todo (new-uuid 505) "something" :todo.status/in-progress)

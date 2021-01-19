@@ -41,33 +41,26 @@
 
 (defattr all-projects :project/all-projects :ref
   {ao/target     :project/id
-   ;ao/pc-output  [{:project/all-projects [:project/id :project/label {:project/project-todos [:todo/label]}]}]
    ao/pc-output  [{:project/all-projects [:project/id]}]
    ao/pc-resolve (fn [{:keys [query-params] :as env} _]
                    #?(:clj
-                      {:project/all-projects (queries/get-all-projects env query-params)}))
-   })
+                      {:project/all-projects (queries/get-all-projects env query-params)}))})
 
-;;#?(:clj
-;;   (pc/defresolver project-details
-;;     [{:keys [parser] :as env} {:project/keys [id]}]
-;;     {::pc/input #{:project/id}
-;;      :pc/output [:todo/id :todo/label :todo/status]}
-;;     (let [result (parser env [{[:project/id id] [{:project/project-todos [:todo/id :todo/label :todo/status]}]}])]
-;;       (get-in (log/spy :info result) [[:project/id id] :todo/label])))
-;;   )
+(defattr todo-labels :project/todo-labels :string
+  {ao/target     :project/id                              ;; What attr is this "part of"?
+   ao/pc-input   #{:project/id}
+   ao/pc-output  [:project/todo-labels]
+   ao/pc-resolve (fn [{:keys [parser] :as env} {project-id :project/id}]
+                   #?(:clj
+                      {:project/todo-labels
+                       (-> (parser env [{[:project/id project-id] [{:project/project-todos [:todo/label]}]}])
+                           (get [:project/id project-id])
+                           :project/project-todos
+                           (->>
+                            (map :todo/label)
+                            (str/join ", ")))}))})
 
-;;(defattr category :line-item/category :ref
-;;  {ao/target      :category/id
-;;   ao/pc-input    #{:line-item/id}
-;;   ao/pc-output   [{:line-item/category [:category/id]}]
-;;   ao/pc-resolve  (fn [env {:line-item/keys [id]}]
-;;                    #?(:clj
-;;                       (when-let [cid (queries/get-line-item-category env id)]
-;;                         {:line-item/category {:category/id cid}})))
-;;   ao/cardinality :one})
-
-(def attributes [id label project-todos all-projects])
+(def attributes [id label project-todos todo-labels all-projects])
 
 #?(:clj
    (def resolvers []))
@@ -79,4 +72,27 @@
  [{[:project/id ffffffff-ffff-ffff-ffff-000000000400] [:project/label]}]
 
  [{:project/all-projects [[:project/id "ffffffff-ffff-ffff-ffff-000000000400"] [:project/label]]}]
+
+ ;;(pc/defresolver all-emails
+ ;;  [env _]
+ ;;  {::pc/output [{:all-emails [:email]}]}
+ ;;  {:all-emails (->> email-db keys (mapv #(hash-map :email %)))})
+
+ ;; ro/row-query-inclusion [{:project/project-todos [:todo/id :todo/label]}]
+
+ ;; (def fake-env {::datomic/databases {:production (:main datomic-connections)}})
+
+ ;; given (pc/defresolver MyThing) or (defattr MyThing):
+ ;; ((:com.wsscode.pathom.connect/resolve MyResolver) ;; or Attribute
+ ;; fake-env input
+
+ ;; (pc/resolve ProjectList (get-fake-env) {} )
+
+ ;; Manually resolve an attribute or a resolver (attr needs to have ao/input, output, resolve)
+ ;; Remember: datomic-env is an atom so you need to de-ref it each time you use it.
+ ((:com.wsscode.pathom.connect/resolve all-projects)
+  development/datomic-env {})
+
+ (development/get-fake-env)
+
  )

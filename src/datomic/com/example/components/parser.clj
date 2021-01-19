@@ -18,6 +18,8 @@
     [mount.core :refer [defstate]]
     [com.example.model.sales :as sales]
     [com.example.model.item :as item]
+    [com.example.model.todo :as todo]
+    [com.example.model.project :as project]
     [com.wsscode.pathom.core :as p]
     [com.wsscode.pathom.connect :as pc]
     [com.fulcrologic.rad.type-support.date-time :as dt]))
@@ -54,4 +56,11 @@
      item/resolvers
      sales/resolvers
      timezone/resolvers
+     todo/resolvers
+     project/resolvers
      index-explorer]))
+
+(comment
+ ;; parser can be called like a fn and takes "env" and "query"
+ (parser nil nil)
+ )

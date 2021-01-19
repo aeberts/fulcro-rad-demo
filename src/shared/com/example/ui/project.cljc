@@ -34,26 +34,13 @@
    ro/route               "project"
    ro/source-attribute    :project/all-projects
    ro/row-pk              project/id
-   ro/columns             [project/label project/project-todos todo/label]
-   ro/form-links          {:project/label ProjectForm}
+   ro/columns             [project/label project/todo-labels]
+   ro/form-links          {:project/label ProjectForm :project/todo-labels TodoForm}
+   ro/column-headings   {:project/todo-labels "Project Todos"}
    ro/run-on-mount?       true
    })
 
-
-
 (comment
 
- ;;ro/row-query-inclusion [{:project/project-todos [:todo/id :todo/label]}]
-
- ;; (def fake-env {::datomic/databases {:production (:main datomic-connections)}})
-
- ;; given (pc/defresolver MyThing) or (defattr MyThing):
- ;; ((:com.wsscode.pathom.connect/resolve MyThing)
- ;; fake-env input
-
- ;(pc/resolve ProjectList (get-fake-env) {} )
-
- ((:com.wsscode.pathom.connect/resolve ProjectReport)
-  fake-env {})
 
  )
