@@ -21,7 +21,7 @@
    [com.example.ui.line-item-forms :refer [LineItemForm]]
    [com.example.ui.login-dialog :refer [LoginForm]]
    [com.example.ui.sales-report :as sales-report]
-   [com.example.ui.todo :refer [TodoForm TodoList]]
+   [com.example.ui.todo :refer [TodoForm TodoList TodoPane]]
    [com.example.ui.project :refer [ProjectForm ProjectReport]]
    [com.example.ui.dashboard :as dashboard :refer [Dashboard]]
    [com.example.ui.semantic-testing :as st]
@@ -55,7 +55,7 @@
                          sales-report/SalesReport InventoryReport
                          sales-report/RealSalesReport
                          dashboard/Dashboard
-                         TodoForm TodoList
+                         TodoForm TodoList TodoPane
                          ProjectForm ProjectReport
                          ]}
   ;; Normal Fulcro code to show a loader on slow route change (assuming Semantic UI here, should
@@ -90,6 +90,9 @@
           (when logged-in?
             #?(:cljs
                (comp/fragment
+                (ui-dropdown {:className "item" :text "Todo Pane"}
+                             (ui-dropdown-menu {}
+                                               (ui-dropdown-item {:onClick (fn [] (rroute/route-to! this TodoPane {}))} "Todo Pane")))
                 (ui-dropdown {:className "item" :text "Todo"}
                              (ui-dropdown-menu {}
                                                (ui-dropdown-item {:onClick (fn [] (rroute/route-to! this TodoList {}))} "View All")
